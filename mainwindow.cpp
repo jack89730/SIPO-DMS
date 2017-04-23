@@ -19,9 +19,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->fsModel = new QFileSystemModel;
     this->fsModel->setRootPath(QDir::currentPath());
+
     qDebug()<<"current path: "<<QDir::currentPath();
     ui->treeView->setModel(this->fsModel);
     qDebug()<<"treeview header length: "<<ui->treeView->header()->count();
+    ui->treeView->setRootIndex(this->fsModel->index(QDir::currentPath()));
     ui->treeView->setHeaderHidden(true);
     ui->treeView->hideColumn(1);
     ui->treeView->hideColumn(2);
@@ -50,6 +52,7 @@ void MainWindow::initdb(){
         q.exec(QLatin1String("create table examiners("
                                                      "id integer primary key, "
                                                      "name varchar, "
+                                                     "name_en varchar, "
                                                      "sex varchar, "
                                                      "birthday, "
                                                      "home varchar, "
@@ -63,6 +66,13 @@ void MainWindow::initdb(){
                                                      "job varchar, "
                                                      "grade varchar, "
                                                      "politics varchar)"));
+        q.exec(QLatin1String("create table responsible("
+                             "id integer primary key, "
+                             "office varchar, "
+                             "affair varchar, "
+                             "examiner1, varchar, "
+                             "examiner2, varchar, "
+                             "examiner3, varchar"));
         q.exec("insert into examiners values(1, "
                "banguijun, "
                "nan, "
@@ -77,6 +87,25 @@ void MainWindow::initdb(){
                "shenchanyuan, "
                "4, "
                "tuanyuan");
+        q.exec("insert into responsible values(1, "
+               "guangxueshi, "
+               "renwuliang, "
+               "chenguiyang, "
+               " ,"
+               ",");
+
+        // walk the dirs and update dirs with database
+        /*
+        QSqlQueryModel qModel;
+        qModel.setQuery("select affair from responsible");
+        QStringList affairs;
+        for(int i = 0; i < qModel.rowCount(); ++i){
+            affairs.append(qModel.record(i + 1).value(0).toString());
+        }
+        QDir dir(QDir::currentPath());
+
+        */
+
 
         qDebug()<<"init succeed!";
 
