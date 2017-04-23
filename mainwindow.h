@@ -23,6 +23,7 @@ public:
 private:
     Ui::MainWindow *ui;
     Dialog* exmnDlg;
+    QSqlDatabase db;
 
     QFileSystemModel *fsModel;
 
@@ -31,6 +32,7 @@ private:
 public slots:
     void openDoc(QModelIndex);
     void showExaminer();
+    void showResponsible(QModelIndex);
 };
 
 #endif // MAINWINDOW_H

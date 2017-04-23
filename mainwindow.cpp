@@ -10,6 +10,8 @@
 #include<QUrl>
 #include<QSqlDatabase>
 #include<QSqlQuery>
+#include<QSqlRecord>
+#include<QDatetime>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -30,10 +32,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView->hideColumn(3);
     connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), \
             this, SLOT(openDoc(QModelIndex)));
+    connect(ui->treeView, SIGNAL(clicked(QModelIndex)), \
+            this, SLOT(showResponsible(QModelIndex)));
 
     this->initdb();
 
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(showExaminer()));
+}
+
+void MainWindow::showResponsible(QModelIndex index){
+    QString affair = this->fsModel->fileName(index);
+    if(this->db.open()){
+        qDebug()<<QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd-HH-MM-ss")<<"database connected in function showResponsible.";
+        QSqlQuery q(this->db);
+        q.prepare("select examiner1, examiner2, examiner3 from responsible where affair = :affair");
+        q.bindValue(":affair", affair.toLatin1());
+        q.exec();
+
+        QString examiner1, examiner2, examiner3;
+        examiner1 = q.record().value(0).toString();
+        examiner2 = q.record().value(1).toString();
+        examiner3 = q.record().value(2).toString();
+        qDebug()<<examiner1<<examiner2<<examiner3;
+
+        // select value = examiner1,2,3 from table examiner
+    }
 }
 
 void MainWindow::showExaminer(){
@@ -45,10 +68,10 @@ void MainWindow::showExaminer(){
 }
 
 void MainWindow::initdb(){
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("examiner");
-    if(db.open()){
-        QSqlQuery q(db);
+    this->db = QSqlDatabase::addDatabase("QSQLITE");
+    this->db.setDatabaseName("examiner");
+    if(this->db.open()){
+        QSqlQuery q(this->db);
         q.exec(QLatin1String("create table examiners("
                                                      "id integer primary key, "
                                                      "name varchar, "
